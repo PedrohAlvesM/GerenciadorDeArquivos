@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 
+import 'model/caixa_de_dialogo.dart';
+
 class Home extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
@@ -62,40 +64,39 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> criarArquivo() async {
-    File novoArquivo = File("${diretorioAtual!.path}/teste.txt");
+  Future<void> criarArquivo(String nomeArquivo) async {
+    File novoArquivo = File("${diretorioAtual!.path}/$nomeArquivo");
+
     if (!await novoArquivo.exists()) {
       await novoArquivo.create(recursive: true);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Arquivo criado em: ${diretorioAtual.toString()}')),
-      );
-
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Arquivo já existe: ${diretorioAtual.toString()}')),
-      );
+      File novoArquivoDiferente = File("${diretorioAtual!.path}/$nomeArquivo-${DateTime.now().toString()}.txt");
+      await novoArquivoDiferente.create(recursive: true);
     }
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Arquivo criado em: ${diretorioAtual.toString()}')),
+    );
+      
   }
-  
-  Future<void> criarDiretorio() async {
-    Directory novoDiretorio = Directory("${diretorioAtual!.path}/teste");
+
+  Future<void> criarDiretorio(String nomeDiretorio) async {
+    Directory novoDiretorio = Directory("${diretorioAtual!.path}/$nomeDiretorio");
+    
     if (!await novoDiretorio.exists()) {
       await novoDiretorio.create(recursive: true);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Arquivo criado em: ${diretorioAtual.toString()}')),
-      );
-
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text('Arquivo já existe: ${diretorioAtual.toString()}')),
-      );
+      Directory novoDiretorioDiferente = Directory("${diretorioAtual!.path}/$nomeDiretorio-${DateTime.now().toString()}");
+      await novoDiretorioDiferente.create(recursive: true);
     }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Pasta criada em: ${diretorioAtual.toString()}')),
+    );
   }
 
   @override
@@ -143,13 +144,31 @@ class _HomeState extends State<Home> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             TextButton(
-              onPressed: criarArquivo, 
-              child: const Icon(Icons.note_add)
-            ),
+                onPressed: () async {
+                  String? nomeArquivo = await GerenciadorDeDialogo.definirDialogo(
+                      context, "input");
+                  if (nomeArquivo.isNotEmpty) {
+                    criarArquivo(nomeArquivo);
+                  }
+                },
+                child: const Row(
+                  children: [Text("criar arquivo"), Icon(Icons.note_add)],
+                )),
             TextButton(
-              onPressed: criarDiretorio, 
-              child: const Icon(Icons.create_new_folder)
-            ),
+                onPressed: () async {
+
+                  String? nomeDiretorio = await GerenciadorDeDialogo.definirDialogo(
+                      context, "input");
+                  if (nomeDiretorio.isNotEmpty) {
+                    criarDiretorio(nomeDiretorio);
+                  }
+                },
+                child: const Row(
+                  children: [
+                    Text("criar pasta"),
+                    Icon(Icons.create_new_folder)
+                  ],
+                )),
           ],
         )
       ],
