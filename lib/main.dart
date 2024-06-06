@@ -2,6 +2,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 
@@ -99,6 +100,44 @@ class _HomeState extends State<Home> {
     );
   }
 
+  Future<void> deletarArquivo(File arquivoDeletar) async {
+    print(arquivoDeletar);
+    if (await arquivoDeletar.exists()) {
+      await arquivoDeletar.delete(recursive: true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('$arquivoDeletar foi deletado')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível deletar o arquivo')),
+      );
+    }
+  }
+
+  Future<void> moverArquivo() async {}
+  Future<void> copiarArquivo() async {}
+  Future<void> renomearArquivo(File arquivo, String novoNome) async {
+    if (await arquivo.exists()) {
+      String novoCaminho = "${diretorioAtual!.path}/$novoNome";
+      await arquivo.rename(novoCaminho);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Arquivo renomeado para $novoCaminho')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Não foi possível renomear o arquivo')),
+      );
+    }
+  }
+  Future<void> propriedadesArquivo() async {}
+  
+  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,23 +157,48 @@ class _HomeState extends State<Home> {
         itemCount: subDiretorios.length,
         itemBuilder: (context, index) {
           FileSystemEntity entidade = subDiretorios[index];
-          return ListTile(
-            leading: Icon(
-              entidade is Directory ? Icons.folder : Icons.insert_drive_file,
-            ),
-            title: Text(entidade.path.split('/').last),
+          return 
+          GestureDetector(
             onTap: () {
-              if (entidade is Directory) {
-                setState(() {
-                  diretorioAtual = entidade;
-                  subDiretorios = entidade.listSync();
-                });
-              } else if (entidade is File) {
-                setState(() {
-                  abrirArquivo(entidade);
-                });
-              }
-            },
+                if (entidade is Directory) {
+                  setState(() {
+                    diretorioAtual = entidade;
+                    subDiretorios = entidade.listSync();
+                  });
+                } else if (entidade is File) {
+                  setState(() {
+                    abrirArquivo(entidade);
+                  });
+                }
+              },
+              onLongPress: () async {
+                if (entidade is File) {
+                  Map<int, Function> opcoesPossiveis = {
+                    0: () {},
+                    1: moverArquivo,
+                    2: copiarArquivo,
+                    3: renomearArquivo,
+                    4: deletarArquivo,
+                    5: propriedadesArquivo,
+                  };
+
+                  int opcaoEscolhida = await GerenciadorDeDialogo.mostrarDialogoOpcoesArquivo(context);
+                  
+                  if (opcaoEscolhida == 3) {
+                    String novoNome = await GerenciadorDeDialogo.mostrarDialogoInput(context);
+                    await opcoesPossiveis[opcaoEscolhida]!(entidade, novoNome);
+                  }
+                  await opcoesPossiveis[opcaoEscolhida]!(entidade);
+                } else if (entidade is Directory) {
+
+                }
+              },
+            child: ListTile(
+              leading: Icon(
+                entidade is Directory ? Icons.folder : Icons.insert_drive_file,
+              ),
+              title: Text(entidade.path.split('/').last),
+            ),
           );
         },
       ),
@@ -145,20 +209,19 @@ class _HomeState extends State<Home> {
           children: [
             TextButton(
                 onPressed: () async {
-                  String? nomeArquivo = await GerenciadorDeDialogo.definirDialogo(
-                      context, "input");
+                  String? nomeArquivo = await GerenciadorDeDialogo.mostrarDialogoInput(context);
                   if (nomeArquivo.isNotEmpty) {
                     criarArquivo(nomeArquivo);
                   }
                 },
                 child: const Row(
                   children: [Text("criar arquivo"), Icon(Icons.note_add)],
-                )),
+                )
+            ),
             TextButton(
                 onPressed: () async {
 
-                  String? nomeDiretorio = await GerenciadorDeDialogo.definirDialogo(
-                      context, "input");
+                  String? nomeDiretorio = await GerenciadorDeDialogo.mostrarDialogoInput(context);
                   if (nomeDiretorio.isNotEmpty) {
                     criarDiretorio(nomeDiretorio);
                   }
