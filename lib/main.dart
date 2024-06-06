@@ -55,7 +55,6 @@ class _HomeState extends State<Home> {
         const SnackBar(
             content: Text('Foi encontrado um problema ao listar os arquivos.')),
       );
-      print(e);
     }
   }
 
@@ -70,73 +69,98 @@ class _HomeState extends State<Home> {
 
     if (!await novoArquivo.exists()) {
       await novoArquivo.create(recursive: true);
-
     } else {
-      File novoArquivoDiferente = File("${diretorioAtual!.path}/$nomeArquivo-${DateTime.now().toString()}.txt");
+      File novoArquivoDiferente = File(
+          "${diretorioAtual!.path}/$nomeArquivo-${DateTime.now().toString()}.txt");
       await novoArquivoDiferente.create(recursive: true);
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Arquivo criado em: ${diretorioAtual.toString()}')),
+          content: Text('Arquivo criado em: ${diretorioAtual.toString()}')),
     );
-      
   }
 
   Future<void> criarDiretorio(String nomeDiretorio) async {
-    Directory novoDiretorio = Directory("${diretorioAtual!.path}/$nomeDiretorio");
-    
+    Directory novoDiretorio =
+        Directory("${diretorioAtual!.path}/$nomeDiretorio");
+
     if (!await novoDiretorio.exists()) {
       await novoDiretorio.create(recursive: true);
-
     } else {
-      Directory novoDiretorioDiferente = Directory("${diretorioAtual!.path}/$nomeDiretorio-${DateTime.now().toString()}");
+      Directory novoDiretorioDiferente = Directory(
+          "${diretorioAtual!.path}/$nomeDiretorio-${DateTime.now().toString()}");
       await novoDiretorioDiferente.create(recursive: true);
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Pasta criada em: ${diretorioAtual.toString()}')),
+      SnackBar(content: Text('Pasta criada em: ${diretorioAtual.toString()}')),
     );
   }
 
   Future<void> deletarArquivo(File arquivoDeletar) async {
-    print(arquivoDeletar);
     if (await arquivoDeletar.exists()) {
       await arquivoDeletar.delete(recursive: true);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('$arquivoDeletar foi deletado')),
+        SnackBar(content: Text('$arquivoDeletar foi deletado')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível deletar o arquivo')),
+        const SnackBar(content: Text('Não foi possível deletar o arquivo')),
+      );
+    }
+  }
+
+  Future<void> deletarDiretorio(Directory diretorioDeletar) async {
+    if (await diretorioDeletar.exists()) {
+      await diretorioDeletar.delete(recursive: true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$diretorioDeletar foi deletado')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Não foi possível deletar o arquivo')),
       );
     }
   }
 
   Future<void> moverArquivo() async {}
+  Future<void> moverDiretorio() async {}
   Future<void> copiarArquivo() async {}
+  Future<void> copiarDiretorio() async {}
+
   Future<void> renomearArquivo(File arquivo, String novoNome) async {
     if (await arquivo.exists()) {
       String novoCaminho = "${diretorioAtual!.path}/$novoNome";
       await arquivo.rename(novoCaminho);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Arquivo renomeado para $novoCaminho')),
+        SnackBar(content: Text('Arquivo renomeado para $novoCaminho')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Não foi possível renomear o arquivo')),
+        const SnackBar(content: Text('Não foi possível renomear o arquivo')),
       );
     }
   }
+
+  Future<void> renomearDiretorio(Directory diretorio, String novoNome) async {
+    if (await diretorio.exists()) {
+      String novoCaminho = "${diretorioAtual!.path}/$novoNome";
+      await diretorio.rename(novoCaminho);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Arquivo renomeado para $novoCaminho')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Não foi possível renomear o arquivo')),
+      );
+    }
+  }
+
   Future<void> propriedadesArquivo() async {}
-  
-  
+  Future<void> propriedadesDiretorio() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -157,42 +181,65 @@ class _HomeState extends State<Home> {
         itemCount: subDiretorios.length,
         itemBuilder: (context, index) {
           FileSystemEntity entidade = subDiretorios[index];
-          return 
-          GestureDetector(
+          return GestureDetector(
             onTap: () {
-                if (entidade is Directory) {
-                  setState(() {
-                    diretorioAtual = entidade;
-                    subDiretorios = entidade.listSync();
-                  });
-                } else if (entidade is File) {
-                  setState(() {
-                    abrirArquivo(entidade);
-                  });
-                }
-              },
-              onLongPress: () async {
-                if (entidade is File) {
-                  Map<int, Function> opcoesPossiveis = {
-                    0: () {},
-                    1: moverArquivo,
-                    2: copiarArquivo,
-                    3: renomearArquivo,
-                    4: deletarArquivo,
-                    5: propriedadesArquivo,
-                  };
+              if (entidade is Directory) {
+                setState(() {
+                  diretorioAtual = entidade;
+                  subDiretorios = entidade.listSync();
+                });
+              } else if (entidade is File) {
+                setState(() {
+                  abrirArquivo(entidade);
+                });
+              }
+            },
+            onLongPress: () async {
+              if (entidade is File) {
+                Map<int, Function> opcoesPossiveis = {
+                  0: () {},
+                  1: moverArquivo,
+                  2: copiarArquivo,
+                  3: renomearArquivo,
+                  4: deletarArquivo,
+                  5: propriedadesArquivo,
+                };
 
-                  int opcaoEscolhida = await GerenciadorDeDialogo.mostrarDialogoOpcoesArquivo(context);
-                  
-                  if (opcaoEscolhida == 3) {
-                    String novoNome = await GerenciadorDeDialogo.mostrarDialogoInput(context);
-                    await opcoesPossiveis[opcaoEscolhida]!(entidade, novoNome);
-                  }
+                int opcaoEscolhida =
+                    await GerenciadorDeDialogo.mostrarDialogoOpcoesArquivo(
+                        context);
+
+                if (opcaoEscolhida == 3) {
+                  String novoNome = await GerenciadorDeDialogo.mostrarDialogoInput(context);
+                  await opcoesPossiveis[opcaoEscolhida]!(entidade, novoNome);
+                }
+                else {
                   await opcoesPossiveis[opcaoEscolhida]!(entidade);
-                } else if (entidade is Directory) {
-
                 }
-              },
+                
+              } else if (entidade is Directory) {
+                Map<int, Function> opcoesPossiveis = {
+                  0: () {},
+                  1: moverDiretorio,
+                  2: copiarDiretorio,
+                  3: renomearDiretorio,
+                  4: deletarDiretorio,
+                  5: propriedadesArquivo,
+                };
+
+                int opcaoEscolhida =
+                    await GerenciadorDeDialogo.mostrarDialogoOpcoesDiretorio(
+                        context);
+
+                if (opcaoEscolhida == 3) {
+                  String novoNome = await GerenciadorDeDialogo.mostrarDialogoInput(context);
+                  await opcoesPossiveis[opcaoEscolhida]!(entidade, novoNome);
+                }
+                else {
+                  await opcoesPossiveis[opcaoEscolhida]!(entidade);
+                }
+              }
+            },
             child: ListTile(
               leading: Icon(
                 entidade is Directory ? Icons.folder : Icons.insert_drive_file,
@@ -209,19 +256,19 @@ class _HomeState extends State<Home> {
           children: [
             TextButton(
                 onPressed: () async {
-                  String? nomeArquivo = await GerenciadorDeDialogo.mostrarDialogoInput(context);
+                  String? nomeArquivo =
+                      await GerenciadorDeDialogo.mostrarDialogoInput(context);
                   if (nomeArquivo.isNotEmpty) {
                     criarArquivo(nomeArquivo);
                   }
                 },
                 child: const Row(
                   children: [Text("criar arquivo"), Icon(Icons.note_add)],
-                )
-            ),
+                )),
             TextButton(
                 onPressed: () async {
-
-                  String? nomeDiretorio = await GerenciadorDeDialogo.mostrarDialogoInput(context);
+                  String? nomeDiretorio =
+                      await GerenciadorDeDialogo.mostrarDialogoInput(context);
                   if (nomeDiretorio.isNotEmpty) {
                     criarDiretorio(nomeDiretorio);
                   }
