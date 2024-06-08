@@ -159,8 +159,48 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> propriedadesArquivo() async {}
-  Future<void> propriedadesDiretorio() async {}
+  Future<void> propriedades(FileSystemEntity entidade) async {
+    String caminho = entidade.path.split('/').last;
+    DateTime dataModificacao = await entidade.stat().then((stat) => stat.modified);
+    int tamanho = await entidade.stat().then((stat) => stat.size);
+    String tipo = entidade is File ? "arquivo" : "pasta";
+
+    String tamanhoMedida = "";
+    const int kB = 1024;
+    const int MB = 1024 * kB;
+    const int GB = 1024 * MB;
+    const int TB = 1024 * GB;
+
+    if (tamanho >= TB) {
+      tamanhoMedida = '${(tamanho / TB).toStringAsFixed(2)} TB';
+    } else if (tamanho >= GB) {
+      tamanhoMedida = '${(tamanho / GB).toStringAsFixed(2)} GB';
+    } else if (tamanho >= MB) {
+      tamanhoMedida = '${(tamanho / MB).toStringAsFixed(2)} MB';
+    } else if (tamanho >= kB) {
+      tamanhoMedida = '${(tamanho / kB).toStringAsFixed(2)} KB';
+    } else {
+      tamanhoMedida = '$tamanho bytes';
+    }
+    
+    Map<String, String> propriedades = {
+      "caminho": caminho,
+      "localização": entidade.path,
+      "data de modificação": dataModificacao.toString(),
+      "tamanho": tamanhoMedida,
+      "tipo": tipo,
+    };
+
+    if (entidade is File) {
+      List<String> extensao = entidade.path.split(".");
+
+      if (extensao.isNotEmpty) {
+        propriedades["extensão"] = extensao[extensao.length -1];
+      }
+    }
+
+    await GerenciadorDeDialogo.mostrarDialogoPropriedades(context, propriedades);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -202,7 +242,7 @@ class _HomeState extends State<Home> {
                   2: copiarArquivo,
                   3: renomearArquivo,
                   4: deletarArquivo,
-                  5: propriedadesArquivo,
+                  5: propriedades,
                 };
 
                 int opcaoEscolhida =
@@ -224,7 +264,7 @@ class _HomeState extends State<Home> {
                   2: copiarDiretorio,
                   3: renomearDiretorio,
                   4: deletarDiretorio,
-                  5: propriedadesArquivo,
+                  5: propriedades,
                 };
 
                 int opcaoEscolhida =

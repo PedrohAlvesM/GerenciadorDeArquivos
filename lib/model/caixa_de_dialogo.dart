@@ -62,6 +62,39 @@ class GerenciadorDeDialogo {
     });
   }
 
+  static Future<bool> mostrarDialogoPropriedades(BuildContext context, Map<String, String> propriedades) async {
+     List<MapEntry<String, String>> listar = propriedades.entries.toList();
+
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Propriedades de ${propriedades["caminho"]}'),
+          content:
+              Center(
+                child: ListView.builder(
+                  itemCount: listar.length,
+                  itemBuilder: ((context, index) {
+                    return Text("${listar[index].key}: ${listar[index].value}");
+                  }
+                )
+                ),
+              ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Voltar'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+          ],
+        );
+      },
+    ).then((result) {
+      return result!;
+    });
+  }
+
   static Future<int> mostrarDialogoOpcoesArquivo(BuildContext context) async {
     return await showDialog<int>(
       context: context,
