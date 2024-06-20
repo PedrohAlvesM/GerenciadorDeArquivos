@@ -232,6 +232,23 @@ class _HomeState extends State<Home> {
         context, propriedades);
   }
 
+  bool eArquivoImagem(FileSystemEntity arquivo) {
+    if (arquivo is File) {
+      List<String> extensions = [
+        'jpg',
+        'jpeg',
+        'png',
+        'gif',
+        'tiff',
+        'webp',
+        'bmp'
+      ];
+      String extension = arquivo.path.split('.').last.toLowerCase();
+      return extensions.contains(extension);
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Widget> acoesPersistentes() {
@@ -295,10 +312,11 @@ class _HomeState extends State<Home> {
                 await GerenciadorDeDialogo.mostrarDialogoInput(context);
             if (nome.isNotEmpty) {
               if (entidadesSelecionadas.elementAt(0) is File) {
-                renomearArquivo(entidadesSelecionadas.elementAt(0) as File, nome);
-              }
-              else if (entidadesSelecionadas.elementAt(0) is Directory) {
-                renomearDiretorio(entidadesSelecionadas.elementAt(0) as Directory, nome);
+                renomearArquivo(
+                    entidadesSelecionadas.elementAt(0) as File, nome);
+              } else if (entidadesSelecionadas.elementAt(0) is Directory) {
+                renomearDiretorio(
+                    entidadesSelecionadas.elementAt(0) as Directory, nome);
               }
             }
 
@@ -421,9 +439,11 @@ class _HomeState extends State<Home> {
             },
             child: ListTile(
               selected: entidadesSelecionadas.contains(entidade),
-              leading: Icon(
-                entidade is Directory ? Icons.folder : Icons.insert_drive_file,
-              ),
+              leading: eArquivoImagem(entidade)
+                  ? Image.file(File(entidade.path), width: 24)
+                  : (entidade is File
+                      ? const Icon(Icons.insert_drive_file)
+                      : const Icon(Icons.folder)),
               title: Text(entidade.path.split('/').last),
             ),
           );
