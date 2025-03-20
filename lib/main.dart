@@ -2,13 +2,14 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:open_file_plus/open_file_plus.dart';
+// import 'package:open_file_plus/open_file_plus.dart';
 
 import 'model/caixa_de_dialogo.dart';
 
 class Home extends StatefulWidget {
+  const Home({super.key});
+
   @override
   _HomeState createState() => _HomeState();
 }
@@ -65,7 +66,7 @@ class _HomeState extends State<Home> {
 
   Future<void> abrirArquivo(FileSystemEntity arquivo) async {
     if (arquivo is File) {
-      await OpenFile.open(arquivo.path);
+      // await OpenFile.open(arquivo.path);
     }
   }
 
@@ -468,5 +469,10 @@ class _HomeState extends State<Home> {
 }
 
 void main() {
-  runApp(MaterialApp(home: Home()));
+  runApp(MaterialApp(
+    theme: ThemeData(
+
+    ),
+    home: const Home()
+  ));
 }

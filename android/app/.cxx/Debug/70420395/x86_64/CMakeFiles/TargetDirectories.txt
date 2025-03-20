@@ -1,0 +1,2 @@
+C:/Users/pedro/OneDrive/Documentos/Apps/gerenciador_de_arquivos/android/app/.cxx/Debug/70420395/x86_64/CMakeFiles/edit_cache.dir
+C:/Users/pedro/OneDrive/Documentos/Apps/gerenciador_de_arquivos/android/app/.cxx/Debug/70420395/x86_64/CMakeFiles/rebuild_cache.dir

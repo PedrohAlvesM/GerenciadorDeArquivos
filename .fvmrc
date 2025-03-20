@@ -1,0 +1,4 @@
+{
+  "flutter": "stable",
+  "dart.flutterSdkPath": ".fvm/flutter_sdk"
+}
