@@ -2,11 +2,16 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:gerenciador_de_arquivos/view/login.dart';
+import 'package:gerenciador_de_arquivos/view/registrar.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:open_file_plus/open_file_plus.dart';
+// import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 import 'model/caixa_de_dialogo.dart';
+import 'view/registrar.dart';
 
+//Pedro Alves e Taeder Bonazza
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -16,7 +21,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   List<FileSystemEntity> subDiretorios = [];
-  Directory? diretorioAtual;
+  Directory? diretorioAtual = Directory("storage/emulated/0");
 
   bool modoSelecao = false;
   bool modoCopiar = false;
@@ -262,7 +267,7 @@ class _HomeState extends State<Home> {
               criarArquivo(nomeArquivo, diretorioAtual!.path);
             }
           },
-          child: const Icon(Icons.note_add),
+          child: const Icon(Icons.note_add, color: Colors.blue),
         ),
         TextButton(
           onPressed: () async {
@@ -272,7 +277,7 @@ class _HomeState extends State<Home> {
               criarDiretorio(nomeDiretorio, diretorioAtual!.path);
             }
           },
-          child: const Icon(Icons.create_new_folder),
+          child: const Icon(Icons.create_new_folder, color: Colors.blue),
         )
       ];
     }
@@ -286,7 +291,7 @@ class _HomeState extends State<Home> {
               modoSelecao = false;
             });
           },
-          child: const Icon(Icons.copy),
+          child: const Icon(Icons.copy, color: Colors.blue),
         ),
         TextButton(
           onPressed: () async {
@@ -295,7 +300,7 @@ class _HomeState extends State<Home> {
               modoColar = true;
             });
           },
-          child: const Icon(Icons.drive_file_move_outline),
+          child: const Icon(Icons.drive_file_move_outline, color: Colors.blue),
         ),
         TextButton(
           onPressed: () async {
@@ -305,7 +310,7 @@ class _HomeState extends State<Home> {
               entidadesSelecionadas.clear();
             });
           },
-          child: const Icon(Icons.info),
+          child: const Icon(Icons.info, color: Colors.blue),
         ),
         TextButton(
           onPressed: () async {
@@ -326,7 +331,7 @@ class _HomeState extends State<Home> {
               entidadesSelecionadas.clear();
             });
           },
-          child: const Icon(Icons.drive_file_rename_outline),
+          child: const Icon(Icons.drive_file_rename_outline, color: Colors.blue),
         ),
         TextButton(
           onPressed: () {
@@ -342,7 +347,7 @@ class _HomeState extends State<Home> {
               entidadesSelecionadas.clear();
             });
           },
-          child: const Icon(Icons.delete),
+          child: const Icon(Icons.delete, color: Colors.blue),
         ),
       ];
     }
@@ -369,7 +374,7 @@ class _HomeState extends State<Home> {
                 modoColar = false;
               });
             },
-            child: const Icon(Icons.paste)),
+            child: const Icon(Icons.paste, color: Colors.blue)),
         TextButton(
           onPressed: () {
             setState(() {
@@ -378,101 +383,121 @@ class _HomeState extends State<Home> {
               entidadesSelecionadas.clear();
             });
           },
-          child: const Icon(Icons.cancel),
+          child: const Icon(Icons.cancel, color: Colors.blue),
         )
       ];
     }
 
     return Scaffold(
-      appBar: AppBar(
-          title: Text(modoSelecao
-              ? "Selecione os itens"
-              : (modoCopiar ? "Selecione o destino" : diretorioAtual!.path)),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              if (modoSelecao) {
-                setState(() {
-                  modoSelecao = false;
-                  entidadesSelecionadas.clear();
-                });
-              } else {
-                listarSubDiretorios(diretorioAtual!.parent);
-              }
-            },
-          )),
-      body: ListView.builder(
-        itemCount: subDiretorios.length,
-        itemBuilder: (context, index) {
-          FileSystemEntity entidade = subDiretorios[index];
-          return GestureDetector(
-            onTap: () {
-              if (modoSelecao) {
-                setState(() {
-                  if (entidadesSelecionadas.contains(entidade)) {
-                    entidadesSelecionadas.remove(entidade);
-                  } else {
-                    entidadesSelecionadas.add(entidade);
-                  }
-
-                  if (entidadesSelecionadas.isEmpty) {
+        appBar: AppBar(
+            title: Text(modoSelecao
+                ? "Selecione os itens"
+                : (modoCopiar ? "Selecione o destino" : diretorioAtual!.path)),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                if (modoSelecao) {
+                  setState(() {
                     modoSelecao = false;
-                  }
-                });
-              } else {
-                if (entidade is Directory) {
-                  setState(() {
-                    diretorioAtual = entidade;
-                    subDiretorios = entidade.listSync();
+                    entidadesSelecionadas.clear();
                   });
-                } else if (entidade is File) {
-                  setState(() {
-                    abrirArquivo(entidade);
-                  });
+                } else {
+                  listarSubDiretorios(diretorioAtual!.parent);
                 }
-              }
+              },
+            )),
+        body: ListView.builder(
+          itemCount: subDiretorios.length,
+          itemBuilder: (context, index) {
+            FileSystemEntity entidade = subDiretorios[index];
+            return GestureDetector(
+              onTap: () {
+                if (modoSelecao) {
+                  setState(() {
+                    if (entidadesSelecionadas.contains(entidade)) {
+                      entidadesSelecionadas.remove(entidade);
+                    } else {
+                      entidadesSelecionadas.add(entidade);
+                    }
+
+                    if (entidadesSelecionadas.isEmpty) {
+                      modoSelecao = false;
+                    }
+                  });
+                } else {
+                  if (entidade is Directory) {
+                    setState(() {
+                      diretorioAtual = entidade;
+                      subDiretorios = entidade.listSync();
+                    });
+                  } else if (entidade is File) {
+                    setState(() {
+                      abrirArquivo(entidade);
+                    });
+                  }
+                }
+              },
+              onLongPress: () {
+                setState(() {
+                  modoSelecao = true;
+                  entidadesSelecionadas.add(entidade);
+                });
+              },
+              child: ListTile(
+                selected: entidadesSelecionadas.contains(entidade),
+                leading: eArquivoImagem(entidade)
+                    ? Image.file(
+                        File(entidade.path),
+                        width: 24,
+                      )
+                    : (entidade is File
+                        ? const Icon(Icons.insert_drive_file)
+                        : const Icon(
+                            Icons.folder,
+                          )),
+                title: Text(
+                  entidade.path.split('/').last,
+                  style: const TextStyle(),
+                ),
+              ),
+            );
+          },
+        ),
+        persistentFooterButtons: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              if (modoSelecao)
+                ...acoesPersistentesSelecao()
+              else if (modoCopiar || modoColar)
+                ...acoesPersistentesCopiarColar()
+              else
+                ...acoesPersistentes()
+            ],
+          )
+        ],
+        floatingActionButton: ElevatedButton(
+            onPressed: () {
+              Navigator.pushNamed(context, '/login');
             },
-            onLongPress: () {
-              setState(() {
-                modoSelecao = true;
-                entidadesSelecionadas.add(entidade);
-              });
-            },
-            child: ListTile(
-              selected: entidadesSelecionadas.contains(entidade),
-              leading: eArquivoImagem(entidade)
-                  ? Image.file(File(entidade.path), width: 24)
-                  : (entidade is File
-                      ? const Icon(Icons.insert_drive_file)
-                      : const Icon(Icons.folder)),
-              title: Text(entidade.path.split('/').last),
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(16),
+              elevation: 6,
             ),
-          );
-        },
-      ),
-      persistentFooterButtons: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            if (modoSelecao)
-              ...acoesPersistentesSelecao()
-            else if (modoCopiar || modoColar)
-              ...acoesPersistentesCopiarColar()
-            else
-              ...acoesPersistentes()
-          ],
-        )
-      ],
-    );
+            child: const Icon(
+              Icons.person,
+              size: 24.0,
+              color: Colors.blue,
+            )));
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    theme: ThemeData(
-
-    ),
-    home: const Home()
-  ));
+void main() async {
+  runApp(MaterialApp(theme: ThemeData(), home: const Home(), routes: {
+    '/home': (context) => const Home(),
+    '/registrar': (context) => const TelaRegistrar(),
+    '/login': (context) => const TelaLogin(),
+  }));
 }

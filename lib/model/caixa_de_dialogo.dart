@@ -62,24 +62,26 @@ class GerenciadorDeDialogo {
     });
   }
 
-  static Future<bool> mostrarDialogoPropriedades(BuildContext context, Map<String, String> propriedades) async {
-     List<MapEntry<String, String>> listar = propriedades.entries.toList();
+  static Future<bool> mostrarDialogoPropriedades(
+      BuildContext context, Map<String, String> propriedades) async {
+    List<MapEntry<String, String>> listar = propriedades.entries.toList();
 
     return await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Propriedades de ${propriedades["caminho"]}'),
-          content:
-              Center(
-                child: ListView.builder(
-                  itemCount: listar.length,
-                  itemBuilder: ((context, index) {
-                    return Text("${listar[index].key}: ${listar[index].value}");
-                  }
-                )
-                ),
-              ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: double.maxFinite, 
+            child: ListView.builder(
+              shrinkWrap: true, 
+              itemCount: listar.length,
+              itemBuilder: (context, index) {
+                return Text("${listar[index].key}: ${listar[index].value}");
+              },
+            ),
+          ),
           actions: <Widget>[
             TextButton(
               child: const Text('Voltar'),
@@ -101,8 +103,7 @@ class GerenciadorDeDialogo {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmação'),
-          content:
-              const Text('O que deseja fazer'),
+          content: const Text('O que deseja fazer'),
           actions: <Widget>[
             TextButton(
               child: const Text('Mover arquivo'),
@@ -147,14 +148,14 @@ class GerenciadorDeDialogo {
       return result!;
     });
   }
+
   static Future<int> mostrarDialogoOpcoesDiretorio(BuildContext context) async {
     return await showDialog<int>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirmação'),
-          content:
-              const Text('O que deseja fazer'),
+          content: const Text('O que deseja fazer'),
           actions: <Widget>[
             TextButton(
               child: const Text('Mover pasta'),

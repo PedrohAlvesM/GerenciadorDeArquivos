@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "665328878415",
+    "project_id": "gerenciadordearquivos-c9e1e",
+    "storage_bucket": "gerenciadordearquivos-c9e1e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:665328878415:android:5d23d97f5564bc445b3b3a",
+        "android_client_info": {
+          "package_name": "com.example.gerenciador_de_arquivos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQf05uai3azaeb7hQIgMOuga6-oE9PzoE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
